@@ -26,10 +26,11 @@ uint8_t KEY_V_IN[] = {KEY_V0,KEY_V1,KEY_V2,KEY_V3};
 uint8_t KEY_MAP[4][4] = {{1, 2, 3, 12}, {4, 5, 6, 13}, {7, 8, 9, 14}, {10, 0, 11, 15}};
 
 //Set The Passcode
-uint32_t passCode = 1033;
+uint8_t passCode[6] = {0,3,1,2,6,2};
 
-//Variable For User To Enter Code
-uint32_t userCode = 0;
+//Variables For User To Enter Code
+uint8_t userCode[6] = {255,255,255,255,255,255};
+uint8_t codeIndex = 0;
 
 bool KEY_PRESSED_NOW = false;
 bool KEY_PRESSED_PREV = false;
@@ -86,18 +87,26 @@ void loop() {
         KEY_PRESSED_NOW = true;
         if (!KEY_PRESSED_PREV) {
           uint8_t KEY = KEY_MAP[i][j];
-          //Serial.println(KEY);
+          Serial.println(KEY);
           if (KEY<10) {
-            userCode = userCode*10 + KEY;
+            userCode[codeIndex] = KEY;
+            codeIndex = codeIndex + 1;
           }
           else if (KEY==10) {
-            if (userCode==passCode) {
+            if (userCode[0]==passCode[0] && userCode[1]==passCode[1] && userCode[2]==passCode[2] && userCode[3]==passCode[3] && userCode[4]==passCode[4] && userCode[5]==passCode[5]) {
               unlock();
             }
-            userCode = 0;
+            userCode[0] = 255;
+            userCode[1] = 255;
+            userCode[2] = 255;
+            userCode[3] = 255;
+            userCode[4] = 255;
+            userCode[5] = 255;
+            codeIndex = 0;
           }
           else if (KEY==11) {
-            userCode = userCode/10;
+            userCode[codeIndex] = 255;
+            codeIndex = codeIndex - 1;
           }
         }
       }
